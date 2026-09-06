@@ -11,4 +11,4 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "smspanel"
-database_id = "REPLACE_WITH_YOUR_DATABASE_ID"
+database_id = "5407dd04-0544-4410-ae44-6d5e4d3fcc5e"
