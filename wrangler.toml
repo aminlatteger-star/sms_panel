@@ -1,0 +1,14 @@
+name = "sms-panel"
+main = "src/worker.js"
+compatibility_date = "2026-01-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+# این بخش رو بعد از دیپلوی اول، از داشبورد کلادفلر (تب Bindings) هم می‌تونی اضافه/تأیید کنی.
+# اگه دیتابیس رو با اسم دیگه‌ای ساختی، همون اسم رو جای smspanel بذار.
+[[d1_databases]]
+binding = "DB"
+database_name = "smspanel"
+database_id = "REPLACE_WITH_YOUR_DATABASE_ID"
