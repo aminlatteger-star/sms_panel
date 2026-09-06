@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل اطلاع‌رسانی پیامکی</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Farsi-Digits/font-face.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <button id="menuBtn" class="hamburger" aria-label="منو">
+    <span></span><span></span><span></span>
+  </button>
+  <h1>پنل اطلاع‌رسانی</h1>
+</header>
+
+<nav id="sideMenu" class="side-menu">
+  <button class="menu-item active" data-view="send">ارسال پیامک</button>
+  <button class="menu-item" data-view="students">مدیریت دانش‌آموزان</button>
+  <button class="menu-item" data-view="history">تاریخچه ارسال‌ها</button>
+  <button class="menu-item" data-view="settings">تنظیمات پیامک</button>
+</nav>
+<div id="overlay" class="overlay"></div>
+
+<main class="content">
+
+  <!-- ارسال پیامک -->
+  <section id="view-send" class="view active-view">
+    <h2>ارسال پیامک جدید</h2>
+    <form id="sendForm" class="card">
+      <label>عنوان</label>
+      <input type="text" id="titleInput" placeholder="مثلاً: غیبت امروز" required>
+
+      <label>دانش‌آموز</label>
+      <select id="studentSelect" required>
+        <option value="">— انتخاب کنید —</option>
+      </select>
+
+      <button type="submit" class="btn-primary">ارسال پیامک</button>
+      <p id="sendMsg" class="msg"></p>
+    </form>
+  </section>
+
+  <!-- مدیریت دانش‌آموزان -->
+  <section id="view-students" class="view">
+    <h2>مدیریت دانش‌آموزان</h2>
+    <form id="studentForm" class="card row-form">
+      <input type="text" id="studentName" placeholder="نام و نام خانوادگی دانش‌آموز" required>
+      <input type="tel" id="studentPhone" placeholder="شماره موبایل والدین (09xxxxxxxxx)" required>
+      <button type="submit" class="btn-primary">افزودن</button>
+    </form>
+    <div id="studentsList" class="list"></div>
+  </section>
+
+  <!-- تاریخچه -->
+  <section id="view-history" class="view">
+    <h2>تاریخچه ارسال‌ها</h2>
+    <div id="historyList" class="list"></div>
+  </section>
+
+  <!-- تنظیمات -->
+  <section id="view-settings" class="view">
+    <h2>تنظیمات پیامک</h2>
+    <p class="hint">
+      این پنل پیامک رو از طریق اپلیکیشن SMS Gateway که روی گوشی اندروید خودت نصب می‌کنی ارسال می‌کنه.
+      آدرس، یوزرنیم و پسوردی که همون اپ بهت نشون میده رو اینجا وارد کن.
+    </p>
+    <form id="settingsForm" class="card">
+      <label>آدرس درگاه (Gateway URL)</label>
+      <input type="text" id="gatewayUrl" placeholder="http://192.168.1.5:8080/message">
+
+      <label>یوزرنیم</label>
+      <input type="text" id="gatewayLogin">
+
+      <label>پسورد</label>
+      <input type="password" id="gatewayPassword">
+
+      <label>قالب متن پیامک</label>
+      <textarea id="messageTemplate" rows="4"></textarea>
+      <p class="hint">از {title} و {student} برای جای‌گذاری عنوان و نام دانش‌آموز استفاده کن.</p>
+
+      <button type="submit" class="btn-primary">ذخیره تنظیمات</button>
+      <p id="settingsMsg" class="msg"></p>
+    </form>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
