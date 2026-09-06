@@ -66,11 +66,13 @@
     <h2>تنظیمات پیامک</h2>
     <p class="hint">
       این پنل پیامک رو از طریق اپلیکیشن SMS Gateway که روی گوشی اندروید خودت نصب می‌کنی ارسال می‌کنه.
-      آدرس، یوزرنیم و پسوردی که همون اپ بهت نشون میده رو اینجا وارد کن.
+      حالت «Cloud Server» رو تو اپ روشن کن، و یوزرنیم/پسوردی که نشون میده رو اینجا وارد کن.
+      آدرس درگاه رو هم دقیقاً همینو بذار:
+      <code>https://api.sms-gate.app/3rdparty/v1/messages</code>
     </p>
     <form id="settingsForm" class="card">
       <label>آدرس درگاه (Gateway URL)</label>
-      <input type="text" id="gatewayUrl" placeholder="http://192.168.1.5:8080/message">
+      <input type="text" id="gatewayUrl" placeholder="https://api.sms-gate.app/3rdparty/v1/messages">
 
       <label>یوزرنیم</label>
       <input type="text" id="gatewayLogin">
