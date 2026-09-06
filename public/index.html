@@ -1,93 +1,92 @@
-import { dbAll, dbGet, dbRun, getSetting, setSetting, sendSms } from '../functions/_lib.js';
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل اطلاع‌رسانی پیامکی</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-function json(data, status = 200) {
-  return Response.json(data, { status });
-}
+<header class="topbar">
+  <button id="menuBtn" class="hamburger" aria-label="منو">
+    <span></span><span></span><span></span>
+  </button>
+  <h1>پنل اطلاع‌رسانی</h1>
+</header>
 
-async function handleApi(request, env, pathname) {
-  const method = request.method;
+<nav id="sideMenu" class="side-menu">
+  <button class="menu-item active" data-view="send">ارسال پیامک</button>
+  <button class="menu-item" data-view="students">مدیریت دانش‌آموزان</button>
+  <button class="menu-item" data-view="history">تاریخچه ارسال‌ها</button>
+  <button class="menu-item" data-view="settings">تنظیمات پیامک</button>
+</nav>
+<div id="overlay" class="overlay"></div>
 
-  // ---------- دانش‌آموزها ----------
-  if (pathname === '/api/students' && method === 'GET') {
-    const rows = await dbAll(env, 'SELECT * FROM students ORDER BY name');
-    return json(rows);
-  }
+<main class="content">
 
-  if (pathname === '/api/students' && method === 'POST') {
-    const body = await request.json();
-    const { name, phone } = body;
-    if (!name || !phone) return json({ error: 'نام و شماره الزامیه' }, 400);
-    const info = await dbRun(env, 'INSERT INTO students (name, phone) VALUES (?, ?)', [name.trim(), phone.trim()]);
-    return json({ id: info.lastInsertRowid, name, phone });
-  }
+  <!-- ارسال پیامک -->
+  <section id="view-send" class="view active-view">
+    <h2>ارسال پیامک جدید</h2>
+    <form id="sendForm" class="card">
+      <label>عنوان</label>
+      <input type="text" id="titleInput" placeholder="مثلاً: غیبت امروز" required>
 
-  const studentDeleteMatch = pathname.match(/^\/api\/students\/(\d+)$/);
-  if (studentDeleteMatch && method === 'DELETE') {
-    await dbRun(env, 'DELETE FROM students WHERE id = ?', [Number(studentDeleteMatch[1])]);
-    return json({ ok: true });
-  }
+      <label>دانش‌آموز</label>
+      <select id="studentSelect" required>
+        <option value="">— انتخاب کنید —</option>
+      </select>
 
-  // ---------- تاریخچه ----------
-  if (pathname === '/api/history' && method === 'GET') {
-    const rows = await dbAll(env, 'SELECT * FROM history ORDER BY id DESC LIMIT 200');
-    return json(rows);
-  }
+      <button type="submit" class="btn-primary">ارسال پیامک</button>
+      <p id="sendMsg" class="msg"></p>
+    </form>
+  </section>
 
-  // ---------- ارسال پیامک ----------
-  if (pathname === '/api/send' && method === 'POST') {
-    const body = await request.json();
-    const { title, studentId } = body;
-    if (!title || !studentId) return json({ error: 'عنوان و انتخاب دانش‌آموز الزامیه' }, 400);
+  <!-- مدیریت دانش‌آموزان -->
+  <section id="view-students" class="view">
+    <h2>مدیریت دانش‌آموزان</h2>
+    <form id="studentForm" class="card row-form">
+      <input type="text" id="studentName" placeholder="نام و نام خانوادگی دانش‌آموز" required>
+      <input type="tel" id="studentPhone" placeholder="شماره موبایل والدین (09xxxxxxxxx)" required>
+      <button type="submit" class="btn-primary">افزودن</button>
+    </form>
+    <div id="studentsList" class="list"></div>
+  </section>
 
-    const student = await dbGet(env, 'SELECT * FROM students WHERE id = ?', [Number(studentId)]);
-    if (!student) return json({ error: 'دانش‌آموز پیدا نشد' }, 404);
+  <!-- تاریخچه -->
+  <section id="view-history" class="view">
+    <h2>تاریخچه ارسال‌ها</h2>
+    <div id="historyList" class="list"></div>
+  </section>
 
-    const template = await getSetting(env, 'message_template');
-    const message = template.replace('{title}', title).replace('{student}', student.name);
-    const result = await sendSms(env, student.phone, message);
+  <!-- تنظیمات -->
+  <section id="view-settings" class="view">
+    <h2>تنظیمات پیامک</h2>
+    <p class="hint">
+      این پنل پیامک رو از طریق اپلیکیشن SMS Gateway که روی گوشی اندروید خودت نصب می‌کنی ارسال می‌کنه.
+      آدرس، یوزرنیم و پسوردی که همون اپ بهت نشون میده رو اینجا وارد کن.
+    </p>
+    <form id="settingsForm" class="card">
+      <label>آدرس درگاه (Gateway URL)</label>
+      <input type="text" id="gatewayUrl" placeholder="http://192.168.1.5:8080/message">
 
-    await dbRun(
-      env,
-      `INSERT INTO history (title, student_name, phone, status, detail) VALUES (?, ?, ?, ?, ?)`,
-      [title, student.name, student.phone, result.ok ? 'موفق' : 'ناموفق', result.detail]
-    );
+      <label>یوزرنیم</label>
+      <input type="text" id="gatewayLogin">
 
-    if (!result.ok) return json({ error: result.detail }, 502);
-    return json({ ok: true, detail: result.detail });
-  }
+      <label>پسورد</label>
+      <input type="password" id="gatewayPassword">
 
-  // ---------- تنظیمات ----------
-  if (pathname === '/api/settings' && method === 'GET') {
-    const rows = await dbAll(env, 'SELECT * FROM settings');
-    const settings = {};
-    for (const r of rows) settings[r.key] = r.value;
-    return json(settings);
-  }
+      <label>قالب متن پیامک</label>
+      <textarea id="messageTemplate" rows="4"></textarea>
+      <p class="hint">از {title} و {student} برای جای‌گذاری عنوان و نام دانش‌آموز استفاده کن.</p>
 
-  if (pathname === '/api/settings' && method === 'POST') {
-    const body = await request.json();
-    const allowed = ['gateway_url', 'gateway_login', 'gateway_password', 'message_template'];
-    for (const key of allowed) {
-      if (typeof body[key] === 'string') await setSetting(env, key, body[key]);
-    }
-    return json({ ok: true });
-  }
+      <button type="submit" class="btn-primary">ذخیره تنظیمات</button>
+      <p id="settingsMsg" class="msg"></p>
+    </form>
+  </section>
 
-  return json({ error: 'یافت نشد' }, 404);
-}
+</main>
 
-export default {
-  async fetch(request, env) {
-    const url = new URL(request.url);
-
-    try {
-      if (url.pathname.startsWith('/api/')) {
-        return await handleApi(request, env, url.pathname);
-      }
-      // هر مسیر دیگه‌ای (خود پنل، CSS، JS) از فایل‌های استاتیک پوشه‌ی public سرو میشه
-      return env.ASSETS.fetch(request);
-    } catch (err) {
-      return json({ error: 'خطای داخلی سرور: ' + err.message }, 500);
-    }
-  }
-};
+<script src="app.js"></script>
+</body>
+</html>
