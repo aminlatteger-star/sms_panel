@@ -57,7 +57,7 @@ export async function sendSms(env, phone, message) {
         'Content-Type': 'application/json',
         'Authorization': `Basic ${auth}`
       },
-      body: JSON.stringify({ message, phoneNumbers: [phone] })
+      body: JSON.stringify({ textMessage: { text: message }, phoneNumbers: [phone] })
     });
 
     if (!res.ok) {
